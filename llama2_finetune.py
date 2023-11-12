@@ -41,8 +41,9 @@ def data_get(data):
 assert os.environ["HUGGING_FACE_HUB_TOKEN"]
 yaml_file = "llama_qa_ir.yaml"
 
+print("Loading Data...")
 dataset = load_dataset("squad_v2")
-
+print("Partitioning Data...")
 train = dataset['train']
 val = dataset['validation']
 
@@ -68,6 +69,6 @@ print("Getting F1 scores...")
 gTruth_ans = val_data["output"]
 
 print("OUTPUT FROM PRED ")
-pred =  model.predict(data_dict=val_df)
+pred =  model.predict(val_df)
 f1_metric = f1_score(predictions=pred, references=gTruth_ans)
 print(f"Llama2 SQuADv2 F1 Score {f1}")
