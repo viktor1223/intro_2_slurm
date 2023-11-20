@@ -11,6 +11,7 @@ import numpy as np; np.random.seed(42)
 import pandas as pd
 from sklearn.metrics import f1_score
 
+
 # Initialize lists to hold the data
 def data_get(data):
   instruction_list = []
@@ -41,8 +42,9 @@ def data_get(data):
 assert os.environ["HUGGING_FACE_HUB_TOKEN"]
 yaml_file = "llama_qa_ir.yaml"
 
+print("Loading Data...")
 dataset = load_dataset("squad_v2")
-
+print("Partitioning Data...")
 train = dataset['train']
 val = dataset['validation']
 
@@ -58,6 +60,8 @@ print(val_data.head())
 qlora_fine_tuning_config = yaml.safe_load(yaml_file)
 model = LudwigModel(config=qlora_fine_tuning_config, logging_level=logging.INFO)
 
+
+
 #Train Model
 results = model.train(dataset=train_data)
 print("Model Trained!")
@@ -68,6 +72,8 @@ print("Getting F1 scores...")
 gTruth_ans = val_data["output"]
 
 print("OUTPUT FROM PRED ")
-pred =  model.predict(data_dict=val_df)
-f1_metric = f1_score(predictions=pred, references=gTruth_ans)
-print(f"Llama2 SQuADv2 F1 Score {f1}")
+
+pred =  model.predict(val_df)
+if torch.cuda.is_available() and torch.distributed.get_rank() == 0:
+    f1_metric = f1_score(predictions=pred, references=gTruth_ans)
+    print(f"Llama2 SQuADv2 F1 Score {f1_metric}")
