@@ -11,7 +11,6 @@ import numpy as np; np.random.seed(42)
 import pandas as pd
 from sklearn.metrics import f1_score
 
-from torch.nn.parallel import DistributedDataParallel
 
 # Initialize lists to hold the data
 def data_get(data):
@@ -43,15 +42,6 @@ def data_get(data):
 assert os.environ["HUGGING_FACE_HUB_TOKEN"]
 yaml_file = "llama_qa_ir.yaml"
 
-
-if torch.cuda.is_available():
-    # Use all available GPUs
-    device = torch.device("cuda")
-    torch.cuda.set_device(device)
-    torch.distributed.init_process_group(backend="nccl", init_method="env://")
-
-
-
 print("Loading Data...")
 dataset = load_dataset("squad_v2")
 print("Partitioning Data...")
@@ -70,11 +60,6 @@ print(val_data.head())
 qlora_fine_tuning_config = yaml.safe_load(yaml_file)
 model = LudwigModel(config=qlora_fine_tuning_config, logging_level=logging.INFO)
 
-if torch.cuda.is_available():
-    model = DistributedDataParallel(model)
-
-if torch.cuda.is_available():
-    model.to(device)
 
 
 #Train Model
@@ -87,8 +72,7 @@ print("Getting F1 scores...")
 gTruth_ans = val_data["output"]
 
 print("OUTPUT FROM PRED ")
-if torch.cuda.is_available():
-    model.to(device)
+
 pred =  model.predict(val_df)
 if torch.cuda.is_available() and torch.distributed.get_rank() == 0:
     f1_metric = f1_score(predictions=pred, references=gTruth_ans)
