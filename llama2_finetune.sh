@@ -1,12 +1,12 @@
 #!/bin/zsh
 
 # SLURM SUBMIT SCRIPT
-#SBATCH --nodes=2   # This needs to match Trainer(num_nodes=...)
+#SBATCH --nodes=1   # This needs to match Trainer(num_nodes=...)
 #SBATCH --account=<ENTER ACCOUNT NAME>
 #SBATCH --partition=<ENTER PARTITION NAME>
-#SBATCH --gres=gpu:2   # number of gpus per node | This needs to match Trainer(devices=...)
+#SBATCH --gres=gpu:1   # number of gpus per node | This needs to match Trainer(devices=...)
 #SBATCH --cpus-per-task=32
-#SBATCH --ntasks-per-node=2  
+#SBATCH --ntasks-per-node=1  
 #SBATCH --time=02:00:00
 #SBATCH --job-name=llama2_finetune #change name to match job
 #SBATCH --output=slurmout/%x-%j.out
